@@ -34,8 +34,12 @@ const layoutSetting: LayoutSetings = {
   ],
 };
 
-const IroColorPicker: React.FC<Props> = ({ layout = "color", ...props }) => {
-  const { color } = props;
+const IroColorPicker: React.FC<Props> = ({
+  layout = "color",
+  color,
+  onColorChange,
+  ...props
+}) => {
   const ref = useRef(null);
   const [colorPicker, setColorPicker] = useState<any>(null);
 
@@ -48,7 +52,7 @@ const IroColorPicker: React.FC<Props> = ({ layout = "color", ...props }) => {
       //layoutDirection: "horizontal",
     });
     colorPicker.on("input:end", (color: any) => {
-      props?.onColorChange(color);
+      onColorChange(color);
     });
     setColorPicker(colorPicker);
     return () => {
@@ -57,10 +61,15 @@ const IroColorPicker: React.FC<Props> = ({ layout = "color", ...props }) => {
   }, []);
 
   useEffect(() => {
-    const { color, ...colorPickerState } = props;
-    if (color) colorPicker?.color.set(color);
-    colorPicker?.setState(colorPickerState);
-  }, [color, colorPicker]);
+    colorPicker?.color.set(color);
+    colorPicker?.setState(props);
+    if (colorPicker) {
+      colorPicker.events = {};
+    }
+    colorPicker?.on("input:end", (color: any) => {
+      onColorChange(color);
+    });
+  }, [color, colorPicker, onColorChange]);
 
   return <div className="color-picker" ref={ref} />;
 };
