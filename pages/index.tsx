@@ -13,7 +13,18 @@ import Button from "antd/lib/button";
 import Alert from "antd/lib/alert";
 import { useCookies } from "react-cookie";
 
+type RGB = {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+};
+
 export default function Home() {
+  const [on, setOn] = useState(true);
+  const [colorMode, setColorMode] = useState<string>("xy");
+  const [rgb, setRgb] = useState<RGB>({ r: 255, g: 255, b: 255, a: 100 });
+  const [ctv, setCtv] = useState<RGB>({ r: 255, g: 255, b: 255, a: 100 });
   const [cookies, setCookie, removeCookie] = useCookies([
     "hueIpAdress",
     "hueUser",
@@ -33,22 +44,24 @@ export default function Home() {
     const fetchLights = async () => {
       const l = await fetch("/api/getLights");
       setLights(l?.data);
-      setSelectedLight(l?.data[0]?._data.id);
+      onLightsSelectChange(l?.data[0]?._data.id);
     };
     redirect();
     fetchLights();
   }, []);
 
   const onColorChnageHandler = useCallback(
-    (color: iro.Color) => {
+    ({ rgb, value }: iro.Color) => {
+      setRgb({ a: value, ...rgb });
       fetch(
-        `/api/color/${selectedLight}?hue=${color.hsv.h}&saturation=${color.hsv.s}&brightness=${color.hsv.v}`
+        `/api/color/${selectedLight}?red=${rgb.r}&green=${rgb.g}&blue=${rgb.b}&brightness=${value}`
       );
     },
     [selectedLight]
   );
 
   const switchHandler = (checked: boolean) => {
+    setOn(checked);
     if (checked) {
       fetch(`/api/on/${selectedLight}`);
     } else {
@@ -57,20 +70,29 @@ export default function Home() {
   };
 
   const colorTeperatureHandler = useCallback(
-    (color: iro.Color) => {
-      const bried = Math.round(
-        1000000 /
-          (color.kelvin < 6500 && color.kelvin > 2000 ? color.kelvin : 2000)
-      );
-      fetch(
-        `/api/white/${selectedLight}?bried=${bried}&brightness=${color.value}`
-      );
+    ({ rgb, value, kelvin }: iro.Color) => {
+      setRgb({ a: value, ...rgb });
+      fetch(`/api/white/${selectedLight}?kelvin=${kelvin}&brightness=${value}`);
     },
     [selectedLight]
   );
 
   const onLightsSelectChange = (value: any) => {
     setSelectedLight(value);
+    setDefaultValues(value);
+  };
+
+  const setDefaultValues = async (lightId: number) => {
+    const { on, colormode, r, g, b, brightness } = await fetch(
+      `/api/getLightState/${lightId}`
+    );
+    setOn(on);
+    setColorMode(colormode);
+    if (colormode === "ct") {
+      setCtv({ r, g, b, a: brightness });
+    } else {
+      setRgb({ r, g, b, a: brightness });
+    }
   };
 
   const disconnectBridge = () => {
@@ -113,19 +135,16 @@ export default function Home() {
             </Select>
           </Form.Item>
           <Form.Item label="Off/On">
-            <Switch defaultChecked onChange={switchHandler} />
+            <Switch checked={on} onChange={switchHandler} />
           </Form.Item>
         </Form>
-        <Tabs defaultActiveKey="1">
-          <Tabs.TabPane tab="Color" key="1">
-            <IroColorPicker
-              color={"#fff"}
-              onColorChange={onColorChnageHandler}
-            />
+        <Tabs activeKey={colorMode} onChange={setColorMode}>
+          <Tabs.TabPane tab="Color" key="xy">
+            <IroColorPicker color={rgb} onColorChange={onColorChnageHandler} />
           </Tabs.TabPane>
-          <Tabs.TabPane tab="White" key="2">
+          <Tabs.TabPane tab="White" key="ct">
             <IroColorPicker
-              color={"#fff"}
+              color={ctv}
               layout="kelvin"
               onColorChange={colorTeperatureHandler}
             />

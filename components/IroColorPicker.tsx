@@ -3,9 +3,16 @@ import iro from "@jaames/iro";
 
 type LayoutSetings = { color: any; kelvin: any };
 
+type RGB = {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+};
+
 type Props = {
   onColorChange?: (value: iro.Color) => void;
-  color?: string;
+  color?: RGB;
   layout?: keyof LayoutSetings;
 };
 
@@ -61,7 +68,9 @@ const IroColorPicker: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    colorPicker?.color.set(color);
+    const hsv = iro.Color.rgbToHsv(color);
+    hsv.v = color.a;
+    colorPicker?.color.set(hsv);
     colorPicker?.setState(props);
     if (colorPicker) {
       colorPicker.events = {};

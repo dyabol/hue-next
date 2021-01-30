@@ -28,10 +28,7 @@ export async function discoverAndCreateUser(
   appName: string,
   deviceName: string
 ) {
-  debugger;
-  console.log("aaaa");
   const ipAddress = await discoverBridge();
-  console.log("bbb");
 
   // Create an unauthenticated instance of the Hue API so that we can create a new user
   const unauthenticatedApi = await hueApi.createLocal(ipAddress).connect();

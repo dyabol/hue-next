@@ -11,13 +11,17 @@ type Data =
 
 export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const {
-    query: { id, bried, brightness },
+    query: { id, kelvin, brightness },
     cookies: { hueIpAdress, hueUser },
   } = req;
   try {
+    const k = parseInt(kelvin as string, 10);
+    const bried: number = Math.round(
+      1000000 / (k < 6500 && k > 2000 ? k : 2000)
+    );
     const state = new Light()
       .on(true)
-      .white(parseInt(bried as string, 10), parseInt(brightness as string, 10));
+      .white(bried, parseInt(brightness as string, 10));
     const hueApi = await getApi(hueIpAdress, hueUser);
     await hueApi?.lights.setLightState(parseInt(id as string, 10), state);
     res.statusCode = 200;
