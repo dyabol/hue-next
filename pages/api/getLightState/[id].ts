@@ -12,9 +12,14 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   } = req;
   try {
     const hueApi = await getApi(hueIpAdress, hueUser);
-    const { on, colormode, xy, bri, ct } = (await hueApi?.lights.getLightState(
-      parseInt(id as string, 10)
-    )) as any;
+    const {
+      on,
+      colormode,
+      xy,
+      bri,
+      ct,
+      effect,
+    } = (await hueApi?.lights.getLightState(parseInt(id as string, 10))) as any;
     const brightness = Math.round(bri / (254 / 100));
     let rgb = {};
     if (colormode === "ct") {
@@ -24,7 +29,14 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       rgb = { r: ar[0], g: ar[1], b: ar[2] };
     }
     res.statusCode = 200;
-    res.json({ on, colormode, ...rgb, bri, brightness });
+    res.json({
+      on,
+      colormode,
+      ...rgb,
+      bri,
+      brightness,
+      loop: effect === "colorloop",
+    });
   } catch (e) {
     console.log(e);
     res.statusCode = 500;

@@ -22,6 +22,7 @@ type RGB = {
 
 export default function Home() {
   const [on, setOn] = useState(true);
+  const [loop, setLoop] = useState(true);
   const [colorMode, setColorMode] = useState<string>("xy");
   const [rgb, setRgb] = useState<RGB>({ r: 255, g: 255, b: 255, a: 100 });
   const [ctv, setCtv] = useState<RGB>({ r: 255, g: 255, b: 255, a: 100 });
@@ -83,11 +84,12 @@ export default function Home() {
   };
 
   const setDefaultValues = async (lightId: number) => {
-    const { on, colormode, r, g, b, brightness } = await fetch(
+    const { on, colormode, r, g, b, brightness, loop } = await fetch(
       `/api/getLightState/${lightId}`
     );
     setOn(on);
-    setColorMode(colormode);
+    setLoop(loop);
+    setColorMode(colormode == "ct" ? "ct" : "xy");
     if (colormode === "ct") {
       setCtv({ r, g, b, a: brightness });
     } else {
@@ -136,6 +138,15 @@ export default function Home() {
           </Form.Item>
           <Form.Item label="Off/On">
             <Switch checked={on} onChange={switchHandler} />
+          </Form.Item>
+          <Form.Item label="Color loop">
+            <Switch
+              checked={loop}
+              onChange={(checked) => {
+                setLoop(checked);
+                fetch(`/api/loop/${selectedLight}?on=${checked}`);
+              }}
+            />
           </Form.Item>
         </Form>
         <Tabs activeKey={colorMode} onChange={setColorMode}>
