@@ -1,20 +1,24 @@
-import { getLights } from "../../utils/hueApi";
+import { discoverAndCreateUser } from "../../utils/hueApi";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data =
   | {
-      data: any[];
+      ipAddress: string;
+      username: string;
     }
   | { error: string };
 
 export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const {
-    cookies: { hueIpAdress, hueUser },
+    query: { appName, deviceName },
   } = req;
   try {
-    const lights = await getLights(hueIpAdress, hueUser);
+    const info = await discoverAndCreateUser(
+      appName as string,
+      deviceName as string
+    );
     res.statusCode = 200;
-    res.json({ data: lights });
+    res.json(info);
   } catch (e) {
     res.statusCode = 500;
     res.json({ error: e.message });

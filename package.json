@@ -14,10 +14,12 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@jaames/iro": "^5.3.1",
     "antd": "^4.11.2",
+    "cookie": "^0.4.1",
     "next": "10.0.5",
     "node-hue-api": "^4.0.10",
     "react": "17.0.1",
     "react-color": "^2.19.3",
+    "react-cookie": "^4.0.3",
     "react-dom": "17.0.1"
   },
   "devDependencies": {

@@ -1,26 +1,31 @@
 import { useState } from "react";
 
 export const useFetch = () => {
-  const [loading, setloading] = useState(0);
+  const [loading, setloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const myFetch = async (url: string) => {
     try {
-      setloading(loading + 1);
+      setloading(true);
       const res = await fetch(url);
-      return res.json();
+      const data = await res.json();
+      if (res.status === 500) {
+        setError(data.error);
+        return null;
+      }
+      return data;
     } catch (e) {
       console.error(e);
-      setError(e.meesage);
+      setError(e.message);
     } finally {
-      setloading(loading - 1);
+      setloading(false);
     }
   };
 
   return {
     error,
+    loading,
     fetch: myFetch,
-    loading: loading > 0,
   };
 };
 
