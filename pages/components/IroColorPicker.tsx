@@ -12,18 +12,24 @@ type Props = {
 const layoutSetting: LayoutSetings = {
   kelvin: [
     {
-      component: iro.ui.Wheel,
+      component: iro.ui.Slider,
+    },
+    {
+      component: iro.ui.Slider,
       options: {
         sliderType: "kelvin",
+        sliderShape: "circle",
+        minTemperature: 2000,
+        maxTemperature: 6500,
       },
     },
   ],
   color: [
     {
-      component: iro.ui.Wheel,
+      component: iro.ui.Slider,
     },
     {
-      component: iro.ui.Slider,
+      component: iro.ui.Wheel,
     },
   ],
 };
@@ -31,31 +37,32 @@ const layoutSetting: LayoutSetings = {
 const IroColorPicker: React.FC<Props> = ({ layout = "color", ...props }) => {
   const { color } = props;
   const ref = useRef(null);
-  const [colorPicker, setColorPicker] = useState<any>();
+  const [colorPicker, setColorPicker] = useState<any>(null);
 
   useEffect(() => {
-    // create a new iro color picker and pass component props to it
     // @ts-ignore
     const colorPicker = new iro.ColorPicker(ref.current, {
       layout: layoutSetting[layout],
+      width: 250,
+      height: 250,
+      //layoutDirection: "horizontal",
     });
-    // call onColorChange prop whenever the color changes
     colorPicker.on("input:end", (color: any) => {
       props?.onColorChange(color);
     });
     setColorPicker(colorPicker);
+    return () => {
+      colorPicker.base.remove();
+    };
   }, []);
 
   useEffect(() => {
-    // isolate color from the rest of the props
     const { color, ...colorPickerState } = props;
-    // update color
     if (color) colorPicker?.color.set(color);
-    // push rest of the component props to the colorPicker's state
     colorPicker?.setState(colorPickerState);
   }, [color, colorPicker]);
 
-  return <div ref={ref} />;
+  return <div className="color-picker" ref={ref} />;
 };
 
 export default IroColorPicker;

@@ -22,3 +22,11 @@ body {
 .icon-wrapper .faicon:last-child {
   right: 0;
 }
+
+.color-picker {
+  text-align: center;
+}
+
+.color-picker .IroColorPicker {
+  display: inline-block !important;
+}
