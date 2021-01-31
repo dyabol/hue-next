@@ -18,6 +18,18 @@ const Spotify = () => {
     <div>
       Spotify <Button onClick={spotifyAuth}>Auth</Button>
       <Button onClick={spotifyStart}>Start</Button>
+      <div
+        id="test"
+        style={{
+          position: "fixed",
+          left: 0,
+          bottom: 0,
+          width: 50,
+          height: 50,
+          background: "red",
+          transition: "width 150ms, background 1000ms",
+        }}
+      />
     </div>
   );
 };

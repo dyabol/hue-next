@@ -25,6 +25,7 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       .on(true)
       .xy(x, y)
       .brightness(parseInt(brightness as string, 10));
+    //.transitionInstant();
     const hueApi = await getApi(hueIpAdress, hueUser);
     await hueApi?.lights.setLightState(parseInt(id as string, 10), state);
     res.statusCode = 200;
