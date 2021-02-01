@@ -1,9 +1,15 @@
 import { v3 } from "node-hue-api";
+import Api from "node-hue-api/lib/api/Api";
 const hueApi = v3.api;
 const discovery = v3.discovery;
 
-export const getApi = (ipAddress: string, user: string) => {
-  return hueApi.createLocal(ipAddress).connect(user);
+let api: Api = null;
+
+export const getApi = async (ipAddress: string, user: string) => {
+  if (!api) {
+    api = await hueApi.createLocal(ipAddress).connect(user);
+  }
+  return api;
 };
 
 export const getLights = async (ipAddress: string, user: string) => {
